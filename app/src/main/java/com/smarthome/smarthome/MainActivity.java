@@ -33,14 +33,15 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
-    private boolean deviceHasBluetooth = false;
     private BluetoothAdapter myBluetooth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button calculateButton = (Button)findViewById(R.id.buttonArduinoConnectionBluetooth);
-        calculateButton.setOnClickListener(new View.OnClickListener() {
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(bluetoothBroadcast,filter);
+        Button connectButton = (Button)findViewById(R.id.buttonArduinoConnectionBluetooth);
+        connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 myBluetooth = BluetoothAdapter.getDefaultAdapter();
@@ -62,6 +63,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothBroadcast,filter);
     }
@@ -92,14 +99,13 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(),"It seems you turned off the bluetooth",Toast.LENGTH_LONG).show();
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
-                        Toast.makeText(getApplicationContext(),"It seems your bluetooth it's turning off",Toast.LENGTH_LONG).show();
-                        break;
-                    case BluetoothAdapter.STATE_ON:
-                        Toast.makeText(getApplicationContext(),"Here we go again",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),"It seems your bluetooth it's turning off",Toast.LENGTH_SHORT).show();
                         break;
                     case BluetoothAdapter.STATE_TURNING_ON:
-                        Toast.makeText(getApplicationContext(),"Turning on...",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),"Turning on...",Toast.LENGTH_SHORT).show();
                         break;
+                    case BluetoothAdapter.STATE_ON:
+                        Toast.makeText(getApplicationContext(),"Bluetooth on",Toast.LENGTH_SHORT).show();
                 }
             }
         }

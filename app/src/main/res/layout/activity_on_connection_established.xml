@@ -33,10 +33,4 @@
 
     <include layout="@layout/content_on_connection_established" />
 
-    <fragment
-        android:id="@+id/onConnectionFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.smarthome.smarthome.OnConnectionEstablished$OnConnectionEstablishedFragment"
-        tools:layout="@layout/activity_on_connection_established" />
 </android.support.design.widget.CoordinatorLayout>

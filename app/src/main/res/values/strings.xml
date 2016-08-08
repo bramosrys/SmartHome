@@ -7,4 +7,6 @@
     <string name="title_activity_show_bluetooth_devices">ShowBluetoothDevices</string>
     <string name="brillo">Brillo</string>
     <string name="bluetoothStartCanceled">"You need to enable Bluetooth in order to start "</string>
+    <string name="text_paired_devices">Paired Devices</string>
+    <string name="text_discovering_devices">Discovering Devices</string>
 </resources>

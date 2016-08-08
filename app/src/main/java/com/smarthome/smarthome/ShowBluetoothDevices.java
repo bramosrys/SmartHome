@@ -33,20 +33,24 @@ public class ShowBluetoothDevices extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Toast.makeText(getApplicationContext(),"ONCREATE",Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_show_bluetooth_devices);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         pairedDevicesList = (ListView) findViewById(R.id.listViewDevicesPairedBluetooth);
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        availableDevices = (ListView)findViewById(R.id.listViewDevicesDiscovered);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.refreshDevices);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(), "Refreshing", Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), "Refreshing", Toast.LENGTH_LONG).show();
                 pairedDevicesListM();
+                discoveredDevicesListM();
             }
         });
         pairedDevicesListM();
+        discoveredDevicesListM();
 
     }
 
@@ -80,4 +84,21 @@ public class ShowBluetoothDevices extends AppCompatActivity {
                 startActivity(i);
         }
     };
+    private void discoveredDevicesListM(){
+        pairedDevicesSet = myBluetoothAdapter.getBondedDevices();
+        ArrayList<String> list = new ArrayList<>();
+        if (pairedDevicesSet.size() > 0) {
+            for (BluetoothDevice device : pairedDevicesSet) {
+                list.add(device.getName() + "\n" + device.getAddress());
+            }
+        } else {
+            String noDevices = "The are no paired devices.";
+            list.add(noDevices);
+        }
+
+        adapter = new ArrayAdapter<String>(
+                getApplicationContext(),R.layout.content_show_bluetooth_devices,R.id.textViewBluetoothDevicesPaired,list);
+        availableDevices.setAdapter(adapter);
+        availableDevices.setOnItemClickListener(myListClickListener);//Method called when the device from the list is clicked
+    }
 }
