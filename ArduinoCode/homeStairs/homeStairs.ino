@@ -28,17 +28,19 @@
 /////////////////////////////
 //VARS
 //the time we give the sensor to calibrate (10-60 secs according to the datasheet)
-int calibrationTime = 30;        
+int calibrationTime = 10;        
 
 //the time when the sensor outputs a low impulse
 long unsigned int lowIn;         
 
 //the amount of milliseconds the sensor has to be low 
 //before we assume all motion has stopped
-long unsigned int pause = 2000;  
+long unsigned int pause = 15000;  
+unsigned int lightMin = 50;
 
-boolean lockLow = true;
-boolean takeLowTime;  
+boolean lockLow = false;
+boolean takeLowTime;
+boolean lightRead = true;  
 
 int upperPirPin = 2;
 int bottomPirPin = 3;//the digital pin connected to the PIR sensor's output
@@ -57,6 +59,8 @@ void setup(){
   pinMode(pushStayOn,INPUT);
   digitalWrite(upperPirPin, LOW);
   digitalWrite(bottomPirPin,LOW);
+  digitalWrite(relayPin,HIGH);
+  
   pushStayOn=false;
   //give the sensor some time to calibrate
   Serial.print("calibrating sensor ");
@@ -80,37 +84,35 @@ void loop(){
   else{
     pushStayOn=false;
   }*/
-     if((digitalRead(upperPirPin) == HIGH || digitalRead(bottomPirPin)==HIGH) && analogRead(fotoResistor)<200 && pushStayOn==false){
+    if((digitalRead(upperPirPin) == HIGH || digitalRead(bottomPirPin)==HIGH) && pushStayOn==false){
       Serial.println("UPPER: " +String(digitalRead(upperPirPin)) + " BOTTOM: " + String(digitalRead(bottomPirPin)) + "Resistance Value: "+analogRead(fotoResistor));
-       if(lockLow){  
+       if(!lockLow && lightRead){  
          //makes sure we wait for a transition to LOW before any further output is made:
-         lockLow = false;
-         digitalWrite(relayPin, LOW);            
-         Serial.println("---");
-         Serial.print("motion detected at ");
-         Serial.print(millis()/1000);
-         Serial.println(" sec"); 
+         lockLow = true;
+         digitalWrite(relayPin, LOW);
          delay(50);
          }         
          takeLowTime = true;
        }
 
-     if((digitalRead(upperPirPin) == LOW && digitalRead(bottomPirPin)==LOW) || analogRead(fotoResistor)>=200 && pushStayOn==false){
-      Serial.println("BAJO");     
+     if((digitalRead(upperPirPin) == LOW && digitalRead(bottomPirPin)==LOW) && pushStayOn==false){
+      Serial.println("Resistance Value: " + String(analogRead(fotoResistor)));     
        if(takeLowTime){
         lowIn = millis();          //save the time of the transition from high to LOW
         takeLowTime = false;       //make sure this is only done at the start of a LOW phase
         }
        //if the sensor is low for more than the given pause, 
        //we assume that no more motion is going to happen
-       if(!lockLow && millis() - lowIn > pause){  
+       if(lockLow && millis() - lowIn > pause){  
            //makes sure this block of code is only executed again after 
            //a new motion sequence has been detected
-           lockLow = true;                        
+           lockLow = false;                        
            Serial.print("motion ended at ");      //output
            Serial.print((millis() - pause)/1000);
            Serial.println(" sec");
            digitalWrite(relayPin, HIGH);
+           delay(100);
+           lightRead = analogRead(fotoResistor)<lightMin;
            delay(50);
            }
      }
